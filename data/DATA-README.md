@@ -64,5 +64,5 @@ material weaknesses 37 · acquisitions, divestitures and discontinued ops
 
 - Numbers shown in the app must come only from `numbers_covered`.
 - Quotes are verbatim; do not edit them.
-- Sign audit: 37 negative `numbers_covered` values in `removed.json` were checked against their quotes. Kept a minus only for accounting negatives (parenthesized or negative figures in financial statements or tax-rate text, 15 values). Removed the minus from 4 plain amounts (ACMR, CHMX) and dropped 18 fragments of case numbers, ASU/note/series labels and ranges (e.g. `26-2-02879-6`, `ASU 2023-09`). `findings.json` has no negative values.
+- Sign audit: 37 negative `numbers_covered` values in `removed.json` were checked against their finding text and quotes. Kept a minus only for accounting negatives (parenthesized or negative figures in financial statements or tax-rate text, 15 values). Removed the minus from 4 plain amounts (ACMR, CHMX) and dropped 18 fragments of case numbers, ASU/note/series labels and ranges (e.g. `26-2-02879-6`, `ASU 2023-09`). `findings.json` has no negative values.
 - Footnote-diff data for research use — not investment advice.
