@@ -85,22 +85,24 @@
 
 ## 7. Verification pass
 
-- [ ] 7. Manual check: all 20 ticker cards render and counts match meta.
+- [x] 7. Manual check: all 20 ticker cards render and counts match meta.
   _Requirements: 1.1_
-- [ ] 7.1 Manual check: each category filter returns the meta count for
+- [x] 7.1 Manual check: each category filter returns the meta count for
   that category; search for a known ticker returns its findings.
   _Requirements: 3.1, 3.2_
-- [ ] 7.2 Manual check: expand a finding and confirm quote, accession,
+- [x] 7.2 Manual check: expand a finding and confirm quote, accession,
   and char offset are visible and verbatim.
   _Requirements: 2.3_
-- [ ] 7.3 Manual check: 360px viewport has no horizontal scroll; 1440px
+- [x] 7.3 Manual check: 360px viewport has no horizontal scroll; 1440px
   viewport shows a 4-column grid.
   _Requirements: 4.4_
-- [ ] 7.4 Manual check: with `findings.json` temporarily renamed, the app
+- [x] 7.4 Manual check: with `findings.json` temporarily renamed, the app
   shows the error state; restore the file.
   _Requirements: 5.2_
 
 ## 8. Submission package
+
+Note: tasks 8 to 8.3 need the owner (video recording, YouTube, Devpost, blog, social). They cannot be done from the build sandbox and remain unchecked.
 
 - [ ] 8. Record the under-3-minute demo video (index → ticker → expanded
   quote flow) and upload it to YouTube as public.
