@@ -113,8 +113,8 @@
      "accession": "0001628280-26-054832",
      "char_offset": 25391,
      "numbers_covered": [
-      "-45904",
-      "-33987",
+      "45904",
+      "33987",
       "2.65",
       "5",
       "120",
@@ -331,7 +331,7 @@
      "accession": "0001628280-26-054832",
      "char_offset": 50414,
      "numbers_covered": [
-      "-33987",
+      "33987",
       "2.65",
       "231518"
      ],
@@ -2421,7 +2421,7 @@
      "accession": "0001641172-25-011444",
      "char_offset": 12866,
      "numbers_covered": [
-      "-575000"
+      "575000"
      ],
      "closest_current": {
       "finding": "As of June 30, 2025, the Company had nine outstanding loans with an aggregate value of $845,000, each repayable in one year at 10% interest annually in arrears.",
@@ -2791,9 +2791,6 @@
      "accession": "0000909832-26-000029",
      "char_offset": 16476,
      "numbers_covered": [
-      "-2879",
-      "-6",
-      "-2",
       "26"
      ],
      "closest_current": {
@@ -2813,8 +2810,6 @@
      "accession": "0000909832-26-000029",
      "char_offset": 19994,
      "numbers_covered": [
-      "-25057",
-      "-2277",
       "1",
       "2",
       "25",
@@ -2901,7 +2896,6 @@
      "accession": "0000909832-26-000029",
      "char_offset": 3781,
      "numbers_covered": [
-      "-9",
       "15"
      ],
      "closest_current": {
@@ -3433,7 +3427,6 @@
      "accession": "0001769628-26-000222",
      "char_offset": 38998,
      "numbers_covered": [
-      "-5",
       "10",
       "10",
       "12",
@@ -5285,7 +5278,6 @@
      "accession": "0001047340-26-000042",
      "char_offset": 26070,
      "numbers_covered": [
-      "-2021",
       "9",
       "16"
      ],
@@ -7052,8 +7044,6 @@
      "accession": "0000807882-26-000067",
      "char_offset": 25211,
      "numbers_covered": [
-      "-2",
-      "-1",
       "71.0",
       "99.0"
      ],
@@ -7114,8 +7104,6 @@
      "accession": "0000807882-26-000067",
      "char_offset": 21354,
      "numbers_covered": [
-      "-2",
-      "-1",
       "71.0",
       "99.0"
      ],
@@ -7599,10 +7587,6 @@
      "accession": "0001193125-26-335209",
      "char_offset": 4008,
      "numbers_covered": [
-      "-2",
-      "-1",
-      "-1",
-      "-1",
       "5.6",
       "18.5",
       "19.1"
@@ -8314,7 +8298,6 @@
      "accession": "0001628280-26-054499",
      "char_offset": 8413,
      "numbers_covered": [
-      "-4",
       "1"
      ],
      "closest_current": {
@@ -8334,7 +8317,6 @@
      "accession": "0001628280-26-054499",
      "char_offset": 9318,
      "numbers_covered": [
-      "-3",
       "15"
      ],
      "closest_current": {

@@ -9,7 +9,8 @@
     meta: $('meta-line'), search: $('search'), category: $('category'), clear: $('clear'),
     count: $('result-count'), error: $('error'), grid: $('ticker-grid'),
     results: $('results'), detail: $('detail'), empty: $('empty'), graveyard: $('graveyard'),
-    navTickers: $('nav-tickers'), navGraveyard: $('nav-graveyard')
+    navTickers: $('nav-tickers'), navGraveyard: $('nav-graveyard'),
+    filterBar: $('filter-bar'), filterToggle: $('filter-toggle'), toTop: $('back-to-top')
   };
 
   function h(tag, cls, text) {
@@ -21,11 +22,12 @@
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
 
   var catColor = {};
+  // Hand-picked, well-separated hues (orange, violet, teal, pink, blue, lime, red, cyan, magenta, green, sand, slate).
+  var PALETTE = ['#ff9a3c', '#a78bfa', '#2dd4bf', '#f472b6', '#60a5fa', '#a3e635',
+    '#f87171', '#22d3ee', '#e879f9', '#4ade80', '#d6b38a', '#94a3b8'];
   function colorFor(cat) { return catColor[cat] || '#a78bfa'; }
   function assignColors(cats) {
-    cats.forEach(function (c, i) {
-      catColor[c] = 'hsl(' + Math.round((i * 360) / cats.length + 20) + ' 80% 70%)';
-    });
+    cats.forEach(function (c, i) { catColor[c] = PALETTE[i % PALETTE.length]; });
   }
   function chip(cat) {
     var c = h('span', 'chip', cat);
@@ -36,6 +38,16 @@
   function sectionLabel(s) {
     return s === 'mda' ? 'MD&A' : s === 'notes' ? 'Notes' : 'Other';
   }
+  function sectionTag(s) { return h('span', 'section-tag', sectionLabel(s)); }
+  // Table-like quotes (pipe-separated rows) get a monospace class; the text is unchanged.
+  function quoteEl(q) { return h('blockquote', typeof q === 'string' && q.indexOf('|') !== -1 ? 'quote-table' : null, q); }
+  // True when the search term hits the category but not the finding text.
+  function categoryOnly(f, q) {
+    if (!q) return false;
+    var needle = q.toLowerCase();
+    return f.category.toLowerCase().indexOf(needle) !== -1 && f.finding.toLowerCase().indexOf(needle) === -1;
+  }
+  function matchNote(f) { return h('p', 'match-note', 'Matched on category: ' + f.category); }
 
   // ---- routing ----
   function parseHash() {
@@ -75,7 +87,9 @@
       var card = h('a', 'ticker-card');
       card.href = '#/' + encodeURIComponent(t.ticker);
       card.appendChild(h('span', 'ticker-sym', t.ticker));
-      card.appendChild(h('span', 'ticker-analyst', t.analyst || ''));
+      var an = h('span', 'ticker-analyst', t.analyst || '');
+      if (t.analyst) an.title = t.analyst;
+      card.appendChild(an);
       var ul = h('ul', 'counts');
       var li1 = h('li'); li1.appendChild(h('strong', null, String(t.display_count))); li1.appendChild(document.createTextNode(' findings shown'));
       var li2 = h('li'); li2.appendChild(h('strong', null, String(t.findings_scored))); li2.appendChild(document.createTextNode(' scored'));
@@ -93,7 +107,8 @@
     });
   }
 
-  function findingCard(f, ticker, withTicker) {
+  function findingCard(f, ticker, withTicker, opts) {
+    opts = opts || {};
     var card = h('article', 'finding');
     var top = h('div', 'finding-top');
     if (withTicker) {
@@ -101,10 +116,11 @@
       a.href = '#/' + encodeURIComponent(ticker);
       top.appendChild(a);
     }
-    top.appendChild(chip(f.category));
-    top.appendChild(h('span', null, sectionLabel(f.section)));
+    if (opts.chip !== false) top.appendChild(chip(f.category));
+    top.appendChild(sectionTag(f.section));
     card.appendChild(top);
     card.appendChild(h('p', 'finding-text', f.finding));
+    if (opts.note) card.appendChild(matchNote(f));
     if (f.numbers_covered && f.numbers_covered.length) {
       var ul = h('ul', 'numbers');
       ul.setAttribute('aria-label', 'Numbers covered');
@@ -123,7 +139,7 @@
         return;
       }
       proof = h('div', 'proof');
-      proof.appendChild(h('blockquote', null, f.quote));
+      proof.appendChild(quoteEl(f.quote));
       var dl = h('dl');
       dl.appendChild(h('dt', null, 'Accession')); dl.appendChild(h('dd', null, f.accession));
       dl.appendChild(h('dt', null, 'Char offset')); dl.appendChild(h('dd', null, String(f.char_offset)));
@@ -160,7 +176,7 @@
         s.appendChild(h('span', 'count', '(' + groups[cat].length + ')'));
         d.appendChild(s);
         var body = h('div', 'group-body');
-        groups[cat].forEach(function (f) { body.appendChild(findingCard(f, t.ticker, false)); });
+        groups[cat].forEach(function (f) { body.appendChild(findingCard(f, t.ticker, false, { chip: false })); });
         d.appendChild(body);
         els.detail.appendChild(d);
       });
@@ -180,7 +196,7 @@
     var n = 0;
     state.data.tickers.forEach(function (t) {
       t.findings.forEach(function (f) {
-        if (matches(f, t.ticker, q, cat)) { n++; els.results.appendChild(findingCard(f, t.ticker, true)); }
+        if (matches(f, t.ticker, q, cat)) { n++; els.results.appendChild(findingCard(f, t.ticker, true, { note: categoryOnly(f, q) })); }
       });
     });
     return n;
@@ -211,18 +227,19 @@
     return state.removedLoad;
   }
 
-  function graveCard(ticker, f) {
+  function graveCard(ticker, f, note) {
     var card = h('article', 'finding grave');
     var top = h('div', 'finding-top');
     var a = h('a', 'ticker-tag', ticker);
     a.href = buildHash(ticker, '', 'graveyard');
     top.appendChild(a);
     top.appendChild(chip(f.category));
-    top.appendChild(h('span', null, sectionLabel(f.section)));
+    top.appendChild(sectionTag(f.section));
     top.appendChild(h('span', 'badge-removed', 'Removed disclosure'));
     card.appendChild(top);
     card.appendChild(h('p', 'label', 'Prior quarter'));
     card.appendChild(h('p', 'finding-text', f.finding));
+    if (note) card.appendChild(matchNote(f));
     if (f.numbers_covered && f.numbers_covered.length) {
       var ul = h('ul', 'numbers');
       ul.setAttribute('aria-label', 'Numbers covered');
@@ -230,7 +247,7 @@
       card.appendChild(ul);
     }
     var proof = h('div', 'proof');
-    proof.appendChild(h('blockquote', null, f.quote));
+    proof.appendChild(quoteEl(f.quote));
     var dl = h('dl');
     dl.appendChild(h('dt', null, 'Accession')); dl.appendChild(h('dd', null, f.accession));
     dl.appendChild(h('dt', null, 'Char offset')); dl.appendChild(h('dd', null, String(f.char_offset)));
@@ -255,7 +272,7 @@
     els.graveyard.textContent = '';
     var n = 0;
     state.removed.list.forEach(function (e) {
-      if (matches(e.f, e.ticker, q, cat)) { n++; els.graveyard.appendChild(graveCard(e.ticker, e.f)); }
+      if (matches(e.f, e.ticker, q, cat)) { n++; els.graveyard.appendChild(graveCard(e.ticker, e.f, categoryOnly(e.f, q))); }
     });
     return n;
   }
@@ -293,6 +310,19 @@
     ['grid', 'results', 'detail', 'graveyard', 'error', 'empty'].forEach(function (k) { els[k].hidden = k !== which; });
   }
 
+  function chrome(r, isDetail) {
+    els.filterBar.classList.toggle('compact', isDetail);
+    if (r.q || r.cat) setFilterOpen(true);
+    updateToTop();
+  }
+  function setFilterOpen(open) {
+    els.filterBar.classList.toggle('open', open);
+    els.filterToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+  function updateToTop() {
+    els.toTop.hidden = !(parseHash().view === 'graveyard' && state.removed && window.scrollY > 600);
+  }
+
   function route() {
     if (!state.data) return;
     var r = parseHash();
@@ -317,6 +347,7 @@
       setCategoryOptions(state.removed.counts);
       if (r.cat && !state.removed.counts[r.cat]) r.cat = '';
       els.category.value = r.cat;
+      chrome(r, false);
       var gn = renderGraveyard(r.q, r.cat);
       if (r.q || r.cat) {
         els.count.textContent = plural(gn, 'removed disclosure', 'removed disclosures') + ' of ' + state.removed.list.length;
@@ -331,6 +362,7 @@
     setCategoryOptions(state.data.meta.categories);
     if (r.cat && Object.keys(state.data.meta.categories).indexOf(r.cat) === -1) r.cat = '';
     els.category.value = r.cat;
+    chrome(r, !!t);
     if (t) {
       els.count.textContent = '';
       renderDetail(t);
@@ -379,6 +411,9 @@
       var home = parseHash().view === 'graveyard' ? '#/graveyard' : '#/';
       if (location.hash !== home && !(home === '#/' && location.hash === '')) location.hash = home; else route();
     });
+    els.filterToggle.addEventListener('click', function () { setFilterOpen(!els.filterBar.classList.contains('open')); });
+    els.toTop.addEventListener('click', function () { window.scrollTo(0, 0); });
+    window.addEventListener('scroll', updateToTop, { passive: true });
     window.addEventListener('hashchange', route);
     route();
   }

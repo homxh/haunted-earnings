@@ -10,12 +10,12 @@
 </head>
 <body>
   <header class="hero">
-    <svg class="hero-art" viewBox="0 0 800 160" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+    <svg class="hero-art" viewBox="0 0 800 160" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
       <circle cx="690" cy="52" r="34" fill="#f3eefc" opacity="0.9"/>
       <circle cx="678" cy="44" r="6" fill="#d9cdf2"/>
       <circle cx="704" cy="64" r="4" fill="#d9cdf2"/>
       <!-- pumpkin -->
-      <g transform="translate(90 90)">
+      <g transform="translate(420 90)">
         <ellipse cx="0" cy="30" rx="46" ry="38" fill="#ff7a1a"/>
         <ellipse cx="-24" cy="30" rx="22" ry="36" fill="#e5640a"/>
         <ellipse cx="24" cy="30" rx="22" ry="36" fill="#e5640a"/>
@@ -33,7 +33,7 @@
         <ellipse cx="40" cy="62" rx="7" ry="9" fill="#12081f"/>
       </g>
       <!-- bat -->
-      <g transform="translate(330 30)" fill="#a78bfa">
+      <g class="hero-bat" transform="translate(300 30)" fill="#a78bfa">
         <path d="M0 20 Q14 -6 30 14 Q40 4 50 14 Q66 -6 80 20 Q66 14 56 26 Q48 18 40 30 Q32 18 24 26 Q14 14 0 20 Z"/>
       </g>
       <!-- ground -->
@@ -52,16 +52,19 @@
       <a id="nav-tickers" href="#/">Tickers</a>
       <a id="nav-graveyard" href="#/graveyard">Graveyard</a>
     </nav>
-    <section class="filter-bar" aria-label="Search and filter">
-      <label class="field">
-        <span>Search</span>
-        <input id="search" type="search" placeholder="Ticker, category, or finding text" autocomplete="off">
-      </label>
-      <label class="field">
-        <span>Category</span>
-        <select id="category"><option value="">All categories</option></select>
-      </label>
-      <button id="clear" type="button" class="btn">Clear</button>
+    <section id="filter-bar" class="filter-bar" aria-label="Search and filter">
+      <button id="filter-toggle" type="button" class="filter-toggle" aria-expanded="false" aria-controls="filter-fields">Search and filter</button>
+      <div id="filter-fields" class="filter-fields">
+        <label class="field">
+          <span>Search</span>
+          <input id="search" type="search" placeholder="Ticker, category, or finding text" autocomplete="off">
+        </label>
+        <label class="field">
+          <span>Category</span>
+          <select id="category"><option value="">All categories</option></select>
+        </label>
+        <button id="clear" type="button" class="btn">Clear</button>
+      </div>
       <p id="result-count" class="result-count" aria-live="polite"></p>
     </section>
 
@@ -81,6 +84,7 @@
     <p id="footer-disclaimer">Footnote-diff data for research use &mdash; not investment advice.</p>
     <p><a href="https://github.com/homxh/haunted-earnings">Source on GitHub</a></p>
   </footer>
+  <button id="back-to-top" type="button" class="back-to-top" hidden>Back to top</button>
   <script src="assets/app.js"></script>
 </body>
 </html>
