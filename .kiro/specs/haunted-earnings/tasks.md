@@ -5,15 +5,17 @@
 - [ ] 1. Create a public GitHub repo named `haunted-earnings` with an
   open-source license (MIT). Do NOT add `.kiro` to `.gitignore`.
   _Requirements: 6.4_
-- [ ] 1.1 Copy this starter pack into the repo root (`.kiro/`, `data/`,
+  _Note: MIT LICENSE is in the repo and `.kiro` is not ignored, but the GitHub repo must be created by the owner; not done from the build sandbox._
+- [x] 1.1 Copy this starter pack into the repo root (`.kiro/`, `data/`,
   `README.md`). Commit.
   _Requirements: 6.1, 6.2_
 - [ ] 1.2 Enable GitHub Pages from the repository root (main branch).
   _Requirements: 5.4_
+  _Note: needs repo admin access; not done from the build sandbox._
 
 ## 2. Data validation
 
-- [ ] 2. Write `scripts/validate_data.py`: load `data/findings.json`,
+- [x] 2. Write `scripts/validate_data.py`: load `data/findings.json`,
   check every finding has non-empty `finding`, `category`, `quote`,
   `accession`, integer `char_offset`; check per-ticker `display_count`
   equals `len(findings)` and top-level `display_findings` equals the sum.
@@ -23,7 +25,8 @@
   `data/findings.json` changes. Record the hook in `.kiro/hooks/` and
   verify it fires on a test edit, then revert the edit.
   _Requirements: 6.3_
-- [ ] 2.2 Run the validator against the shipped dataset; it must pass
+  _Note: hook is in `.kiro/hooks/validate-findings.kiro.hook`. Firing inside the Kiro IDE could not be verified from the sandbox, so this stays unchecked. The validator it runs was checked against a corrupted copy and fails with ticker and claim id._
+- [x] 2.2 Run the validator against the shipped dataset; it must pass
   (20 tickers, 449 findings).
   _Requirements: 6.3_
 
