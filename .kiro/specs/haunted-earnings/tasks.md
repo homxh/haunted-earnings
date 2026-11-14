@@ -32,54 +32,54 @@
 
 ## 3. App shell and theme
 
-- [ ] 3. Write `index.html` skeleton: hero header, filter bar, ticker
+- [x] 3. Write `index.html` skeleton: hero header, filter bar, ticker
   grid container, ticker detail container, footer with provenance and
   disclaimer.
   _Requirements: 1.3, 4.2, 5.1_
-- [ ] 3.1 Write `assets/style.css`: haunted theme (dark purple background,
+- [x] 3.1 Write `assets/style.css`: haunted theme (dark purple background,
   pumpkin orange + violet accents), card style, category chip colors,
   responsive breakpoints at 1024px and 640px.
   _Requirements: 4.1, 4.4_
-- [ ] 3.2 Add inline SVG Halloween decoration to the hero (no external
+- [x] 3.2 Add inline SVG Halloween decoration to the hero (no external
   images, no copyrighted assets).
   _Requirements: 4.3_
 
 ## 4. Ticker index
 
-- [ ] 4. Write `assets/app.js` data loading: fetch `data/findings.json`,
+- [x] 4. Write `assets/app.js` data loading: fetch `data/findings.json`,
   render the meta line (449 findings, 20 tickers, Q3 2026 10-Q vs prior
   quarter, disclaimer). On load failure, show an error state naming the
   file.
   _Requirements: 1.3, 5.2, 5.3_
-- [ ] 4.1 Render the ticker grid: one card per ticker with symbol, analyst
+- [x] 4.1 Render the ticker grid: one card per ticker with symbol, analyst
   name, display count, scored total, removed count (labelled as removed
   disclosures), top 2 categories.
   _Requirements: 1.1, 1.2_
-- [ ] 4.2 Wire card click to the detail view and update the URL hash
+- [x] 4.2 Wire card click to the detail view and update the URL hash
   (`#/ACMR`); back/forward navigation must restore the view.
   _Requirements: 2.1_
 
 ## 5. Finding browser
 
-- [ ] 5. Render the ticker detail view: findings grouped by category in
+- [x] 5. Render the ticker detail view: findings grouped by category in
   collapsible sections.
   _Requirements: 2.1_
-- [ ] 5.1 Render finding cards: finding text, category chip, section label,
+- [x] 5.1 Render finding cards: finding text, category chip, section label,
   numbers from `numbers_covered` only.
   _Requirements: 2.2, 2.4_
-- [ ] 5.2 Add expand control per card: shows the verbatim `quote` plus
+- [x] 5.2 Add expand control per card: shows the verbatim `quote` plus
   source `accession` and `char_offset`.
   _Requirements: 2.3_
 
 ## 6. Search and filter
 
-- [ ] 6. Add the category filter (12 categories from meta) with a visible
+- [x] 6. Add the category filter (12 categories from meta) with a visible
   result count; selecting one filters across all tickers.
   _Requirements: 3.1_
-- [ ] 6.1 Add text search matching finding text, category, and ticker
+- [x] 6.1 Add text search matching finding text, category, and ticker
   symbol, case-insensitively; combine with the category filter.
   _Requirements: 3.2_
-- [ ] 6.2 Add an explicit empty state for zero results, plus a clear
+- [x] 6.2 Add an explicit empty state for zero results, plus a clear
   button that resets filter and search.
   _Requirements: 3.3_
 
