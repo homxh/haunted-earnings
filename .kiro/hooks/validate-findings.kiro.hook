@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Validate findings.json",
+  "description": "Runs the data validator whenever data/findings.json is edited.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["data/findings.json"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "data/findings.json changed. Run `python3 scripts/validate_data.py` and report any failures with the ticker and claim id. Do not edit the data to make it pass without asking."
+  }
+}
