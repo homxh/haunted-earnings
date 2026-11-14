@@ -22,9 +22,35 @@ consolidated from the trimmed per-ticker files of the Gate 2 sample run.
 - Full set (reference only, NOT shipped): 1,557 findings scored
   (840 current-side + 717 removed) across 23 pairs, in
   `track-d-gate1/sample-diffs/work/system_diff_findings.json` (2.6 MB).
-  Removed-side findings are counted in per-ticker meta, not listed.
+  Removed-side findings are counted in per-ticker meta here and listed
+  separately in `removed.json` (see below).
 - 3 of the 23 pairs (EQPT, PLTR, TSLA) have no trimmed file and are not in
   the display set.
+
+## What is in `removed.json`
+
+The dataset behind the Graveyard view: **717 removed disclosures across 23
+tickers** (the 20 display tickers plus EQPT, PLTR, TSLA). These are the
+removed side of the same Gate 2 run: prior-quarter disclosures that vanished
+in Q3 2026. They are never current-quarter facts.
+
+- **Structure**: `meta` (`removed_findings` 717, `no_counterpart` 71,
+  `unjoined` 0) and `tickers[]` with `ticker`, `removed_count`, `findings[]`.
+- **Per finding**: `finding` (prior-quarter text), `category` (same 12 as
+  above), `section`, `claim_ids`, verbatim `quote`, `accession`,
+  `char_offset`, `numbers_covered`, and `closest_current`.
+- **`closest_current`**: the nearest current-quarter text, as an object with
+  `finding`, `similarity`, `numbers_equal`. It is a nearest match, not a
+  confirmed restatement. The app shows only its `finding` text.
+- **`closest_current: null`** means the disclosure disappeared with no
+  counterpart in the current quarter: a true ghost (71 of 717). The app
+  labels these "True ghost".
+- **Quote join**: each quote was joined from the verified claims file
+  (2,001 claims, 0 digital errors) by `claim_id` plus finding text; 0 entries
+  are unjoined.
+- Per-ticker `removed_deduped` in `findings.json` equals `removed_count`
+  here for the 20 display tickers.
+- Check with `python3 scripts/validate_data.py` (validates both files).
 
 ## Categories (12)
 

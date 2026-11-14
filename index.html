@@ -48,6 +48,10 @@
   </header>
 
   <main id="main">
+    <nav class="view-nav" aria-label="Views">
+      <a id="nav-tickers" href="#/">Tickers</a>
+      <a id="nav-graveyard" href="#/graveyard">Graveyard</a>
+    </nav>
     <section class="filter-bar" aria-label="Search and filter">
       <label class="field">
         <span>Search</span>
@@ -64,6 +68,7 @@
     <div id="error" class="error-state" role="alert" hidden></div>
     <section id="ticker-grid" class="ticker-grid" aria-label="Tickers" hidden></section>
     <section id="results" class="results" aria-label="Search results" hidden></section>
+    <section id="graveyard" class="results graveyard" aria-label="Graveyard of removed disclosures" hidden></section>
     <section id="detail" class="detail" aria-label="Ticker detail" hidden></section>
     <div id="empty" class="empty-state" hidden>
       <p class="empty-title">Nothing is haunting this search.</p>

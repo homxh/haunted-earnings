@@ -121,3 +121,30 @@ Note: tasks 8 to 8.3 need the owner (video recording, YouTube, Devpost, blog, so
   #KiroweenHackathon26 at the start for the Social Blitz prize. Link
   both in the submission form.
 - [ ] 8.3 Submit on Devpost before Dec 4, 2026, 2:00 PM PT.
+
+## 9. Graveyard view
+
+Note: tasks 9 to 9.5 were verified with `python3 scripts/validate_data.py` (both datasets) and the Playwright checks in `tests/pwcheck/` (all PASS, including the Requirement 7 checks).
+
+- [x] 9. Add the top-level Graveyard view at `#/graveyard`, with a
+  Tickers / Graveyard nav in `index.html`; lazily load `data/removed.json`
+  in `assets/app.js`.
+  _Requirements: 7.1_
+- [x] 9.1 Render each removed disclosure: prior-quarter text, verbatim
+  quote, accession, char offset, numbers from `numbers_covered`; show
+  `closest_current.finding` as the afterlife, or a "True ghost" label when
+  `closest_current` is null.
+  _Requirements: 7.2, 7.3, 7.4, 7.6_
+- [x] 9.2 Reuse the category filter and search in the Graveyard (counts,
+  empty state, clear, deep link `#/graveyard?q=&cat=`).
+  _Requirements: 7.5_
+- [x] 9.3 Show an error state naming `data/removed.json` on load failure
+  without breaking the ticker views.
+  _Requirements: 7.7_
+- [x] 9.4 Extend `scripts/validate_data.py` and the Kiro hook to cover
+  `data/removed.json`; update `data/DATA-README.md`.
+  _Requirements: 7.8_
+- [x] 9.5 Extend `tests/pwcheck/check.js` with Graveyard checks (717
+  entries, 71 true ghosts, verbatim quote, afterlife, filters, search,
+  responsive, error state) and run them.
+  _Requirements: 7.1 to 7.7_

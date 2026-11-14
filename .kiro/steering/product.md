@@ -17,7 +17,8 @@ demo-grade viewer, built for the Kiroween 2026 Costume Contest.
   control.
 - **Every finding carries its proof.** Finding card → verbatim quote →
   accession + char offset. No finding is shown without its source.
-- **Removed is not deleted.** Removed-side findings are counted and labelled
+- **Removed is not deleted.** Removed-side findings are counted, listed only in
+  the Graveyard view (`data/removed.json`), and labelled
   as removed disclosures; they are never presented as current-quarter facts.
 - **Disclaimer always visible.** "Footnote-diff data for research use — not
   investment advice." appears in the hero meta line and the footer.
