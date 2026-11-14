@@ -189,10 +189,11 @@
   function route() {
     if (!state.data) return;
     var r = parseHash();
-    els.search.value = r.q;
-    els.category.value = r.cat;
-    if (r.cat && Object.keys(state.data.meta.categories).indexOf(r.cat) === -1) { r.cat = ''; els.category.value = ''; }
     var t = r.ticker && state.byTicker[r.ticker];
+    if (t) { r.q = ''; r.cat = ''; }
+    if (els.search.value.trim() !== r.q) els.search.value = r.q;
+    if (r.cat && Object.keys(state.data.meta.categories).indexOf(r.cat) === -1) r.cat = '';
+    els.category.value = r.cat;
     if (t) {
       els.count.textContent = '';
       renderDetail(t);
@@ -209,10 +210,19 @@
     }
   }
 
-  function onFilterChange() {
+  function onFilterChange(ev) {
     var h2 = buildHash(els.search.value.trim(), els.category.value);
-    if (location.hash !== h2 && !(h2 === '#/' && (location.hash === '' || location.hash === '#'))) location.hash = h2;
-    else route();
+    var current = parseHash();
+    var onList = !(current.ticker && state.byTicker[current.ticker]);
+    if (location.hash === h2 || (h2 === '#/' && (location.hash === '' || location.hash === '#'))) {
+      route();
+    } else if (ev && ev.type === 'input' && onList) {
+      // Typing replaces the current entry so Back does not step through keystrokes.
+      history.replaceState(null, '', h2);
+      route();
+    } else {
+      location.hash = h2;
+    }
   }
 
   function init(data) {

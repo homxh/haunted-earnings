@@ -85,6 +85,10 @@
 
 ## 7. Verification pass
 
+Note: tasks 7 to 7.4 were verified with a headless Chromium run (Playwright, script kept outside the repo) against `python3 -m http.server`. Results: 20 cards and per-card counts match meta (449 findings); all 12 category filters return their meta counts; search for ACMR is case-insensitive; the expanded quote equals the JSON `quote` and shows accession and char offset; the grid has 4 columns at 1440px, 2 at 1000px, 1 at 360px with `scrollWidth <= innerWidth` on index, detail (expanded) and results views; with `data/findings.json` renamed the error state names `data/findings.json` (file restored); no console errors. Also checked: Back/Forward between index and detail, deep link `#/?q=lease&cat=leases`, and that typing in search adds no history entries.
+
+Reading of Requirement 2.4: the app only renders numbers from `numbers_covered` as number chips. The `finding` text is dataset-authored prose and is shown verbatim, because altering it is out of scope and would break the no-paraphrase rule. Findings with non-empty `numbers_missing` (165 of 449) may mention figures outside `numbers_covered` in that prose; resolving that is a dataset decision, not an app change.
+
 - [x] 7. Manual check: all 20 ticker cards render and counts match meta.
   _Requirements: 1.1_
 - [x] 7.1 Manual check: each category filter returns the meta count for
