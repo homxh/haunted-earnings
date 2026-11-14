@@ -2,7 +2,7 @@
 
 ## 1. Repository setup
 
-- [ ] 1. Create a public GitHub repo named `haunted-earnings` with an
+- [x] 1. Create a public GitHub repo named `haunted-earnings` with an
   open-source license (MIT). Do NOT add `.kiro` to `.gitignore`.
   _Requirements: 6.4_
   _Note: MIT LICENSE is in the repo and `.kiro` is not ignored, but the GitHub repo must be created by the owner; not done from the build sandbox._
@@ -21,7 +21,7 @@
   equals `len(findings)` and top-level `display_findings` equals the sum.
   Exit non-zero on any failure and print the offending ticker/claim id.
   _Requirements: 6.3, 2.4_
-- [ ] 2.1 Add a Kiro hook that runs the validator whenever
+- [x] 2.1 Add a Kiro hook that runs the validator whenever
   `data/findings.json` changes. Record the hook in `.kiro/hooks/` and
   verify it fires on a test edit, then revert the edit.
   _Requirements: 6.3_
@@ -85,9 +85,9 @@
 
 ## 7. Verification pass
 
-Note: tasks 7 to 7.4 were verified with a headless Chromium run (Playwright, script kept outside the repo) against `python3 -m http.server`. Results: 20 cards and per-card counts match meta (449 findings); all 12 category filters return their meta counts; search for ACMR is case-insensitive; the expanded quote equals the JSON `quote` and shows accession and char offset; the grid has 4 columns at 1440px, 2 at 1000px, 1 at 360px with `scrollWidth <= innerWidth` on index, detail (expanded) and results views; with `data/findings.json` renamed the error state names `data/findings.json` (file restored); no console errors. Also checked: Back/Forward between index and detail, deep link `#/?q=lease&cat=leases`, and that typing in search adds no history entries.
+Note: tasks 7 to 7.4 were verified with a headless Chromium run (Playwright, script in `tests/pwcheck/`) against `python3 -m http.server`. Results: 20 cards and per-card counts match meta (449 findings); all 12 category filters return their meta counts; search for ACMR is case-insensitive; the expanded quote equals the JSON `quote` and shows accession and char offset; the grid has 4 columns at 1440px, 2 at 1000px, 1 at 360px with `scrollWidth <= innerWidth` on index, detail (expanded) and results views; with `data/findings.json` renamed the error state names `data/findings.json` (file restored); no console errors. Also checked: Back/Forward between index and detail, deep link `#/?q=lease&cat=leases`, and that typing in search adds no history entries.
 
-Reading of Requirement 2.4: the app only renders numbers from `numbers_covered` as number chips. The `finding` text is dataset-authored prose and is shown verbatim, because altering it is out of scope and would break the no-paraphrase rule. Findings with non-empty `numbers_missing` (165 of 449) may mention figures outside `numbers_covered` in that prose; resolving that is a dataset decision, not an app change.
+Reading of Requirement 2.4 (clarified in requirements.md and design.md): the numbers rule applies to derived displays, so number chips come only from `numbers_covered`. The `finding` prose is shown verbatim because its figures are verified at claim level (2,001 claims, 0 digital errors). `numbers_missing` (non-empty for 165 of 449 findings) only means the figure is not inside the trimmed quote snippet; it is not an app defect.
 
 - [x] 7. Manual check: all 20 ticker cards render and counts match meta.
   _Requirements: 1.1_

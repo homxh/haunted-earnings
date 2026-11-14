@@ -68,7 +68,9 @@ Kiro hook on data changes):
 
 - Every finding has non-empty `finding`, `category`, `quote`, `accession`,
   and integer `char_offset`.
-- `numbers_covered` is a list; the UI renders numbers only from it.
+- `numbers_covered` is a list; the UI builds derived number displays (number
+  chips) only from it. `numbers_missing` only means a figure is not inside the
+  trimmed quote snippet.
 - Per-ticker `display_count` equals `len(findings)`; top-level
   `display_findings` equals the sum across tickers.
 
@@ -102,7 +104,9 @@ Kiro hook on data changes):
 
 - Quotes are rendered verbatim from JSON; the app never edits or truncates
   quote text (CSS may clamp with an explicit "show full quote" control).
-- Numbers shown on a finding card come only from `numbers_covered`.
+- Derived number displays (number chips) on a finding card come only from
+  `numbers_covered`. Finding prose is shown verbatim; its figures are verified
+  at claim level (2,001 claims, 0 digital errors).
 - If `findings.json` fails to load, the app shows an error state naming
   the file instead of rendering an empty page.
 

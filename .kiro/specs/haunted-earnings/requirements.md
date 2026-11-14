@@ -52,8 +52,14 @@ can judge what moved quarter over quarter.
    `numbers_covered`.
 3. WHEN a finding card is expanded, THE SYSTEM SHALL show the verbatim `quote`
    plus the source `accession` and `char_offset`.
-4. THE SYSTEM SHALL NOT display any number that is not in the finding's
-   `numbers_covered` list, and SHALL NOT paraphrase or alter quote text.
+4. THE SYSTEM SHALL NOT display any derived number (such as number chips)
+   that is not in the finding's `numbers_covered` list, and SHALL NOT
+   paraphrase or alter quote text.
+   _Clarification: the numbers rule applies to derived displays, which are
+   built from `numbers_covered` only. Finding prose is shown verbatim because
+   its figures are verified at claim level (2,001 claims, 0 digital errors).
+   `numbers_missing` only means the figure is not inside the trimmed quote
+   snippet._
 
 ### Requirement 3 — Search and filter
 

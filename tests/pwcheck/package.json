@@ -1,0 +1,14 @@
+{
+  "name": "haunted-earnings-pwcheck",
+  "version": "1.0.0",
+  "description": "Playwright checks for tasks.md section 7",
+  "main": "check.js",
+  "scripts": {
+    "test": "node check.js"
+  },
+  "type": "commonjs",
+  "dependencies": {
+    "playwright": "^1.65.1"
+  },
+  "private": true
+}
