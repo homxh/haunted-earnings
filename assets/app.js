@@ -2,12 +2,14 @@
   'use strict';
 
   var DATA_URL = 'data/findings.json';
-  var state = { data: null, byTicker: {} };
+  var REMOVED_URL = 'data/removed.json';
+  var state = { data: null, byTicker: {}, removed: null, removedLoad: null, catCounts: null };
   var $ = function (id) { return document.getElementById(id); };
   var els = {
     meta: $('meta-line'), search: $('search'), category: $('category'), clear: $('clear'),
     count: $('result-count'), error: $('error'), grid: $('ticker-grid'),
-    results: $('results'), detail: $('detail'), empty: $('empty')
+    results: $('results'), detail: $('detail'), empty: $('empty'), graveyard: $('graveyard'),
+    navTickers: $('nav-tickers'), navGraveyard: $('nav-graveyard')
   };
 
   function h(tag, cls, text) {
@@ -41,14 +43,16 @@
     var qi = raw.indexOf('?');
     var path = qi === -1 ? raw : raw.slice(0, qi);
     var params = new URLSearchParams(qi === -1 ? '' : raw.slice(qi + 1));
-    return { ticker: decodeURIComponent(path).toUpperCase(), q: params.get('q') || '', cat: params.get('cat') || '' };
+    var name = decodeURIComponent(path).toUpperCase();
+    var view = name === 'GRAVEYARD' ? 'graveyard' : 'tickers';
+    return { view: view, ticker: view === 'graveyard' ? '' : name, q: params.get('q') || '', cat: params.get('cat') || '' };
   }
-  function buildHash(q, cat) {
+  function buildHash(q, cat, view) {
     var p = new URLSearchParams();
     if (q) p.set('q', q);
     if (cat) p.set('cat', cat);
     var s = p.toString();
-    return '#/' + (s ? '?' + s : '');
+    return (view === 'graveyard' ? '#/graveyard' : '#/') + (s ? '?' + s : '');
   }
 
   // ---- rendering ----
@@ -142,7 +146,7 @@
     head.appendChild(h('span', 'ticker-analyst', t.analyst || ''));
     els.detail.appendChild(head);
     var stats = t.display_count + ' findings shown, ' + t.findings_scored + ' scored';
-    if (t.removed_deduped) stats += ', ' + t.removed_deduped + ' removed disclosures (counted, not listed)';
+    if (t.removed_deduped) stats += ', ' + t.removed_deduped + ' removed disclosures (listed in the Graveyard)';
     els.detail.appendChild(h('p', 'detail-stats', stats));
 
     var groups = {};
@@ -182,8 +186,111 @@
     return n;
   }
 
+  // ---- graveyard ----
+  function loadRemoved() {
+    if (!state.removedLoad) {
+      state.removedLoad = fetch(REMOVED_URL)
+        .then(function (r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function (d) {
+          var list = [], counts = {}, ghosts = 0;
+          d.tickers.forEach(function (t) {
+            t.findings.forEach(function (f) {
+              list.push({ ticker: t.ticker, f: f });
+              counts[f.category] = (counts[f.category] || 0) + 1;
+              if (!f.closest_current) ghosts++;
+            });
+          });
+          state.removed = { list: list, counts: counts, ghosts: ghosts, tickers: d.tickers.length };
+          return state.removed;
+        })
+        .catch(function (e) { state.removedLoad = null; throw e; });
+    }
+    return state.removedLoad;
+  }
+
+  function graveCard(ticker, f) {
+    var card = h('article', 'finding grave');
+    var top = h('div', 'finding-top');
+    var a = h('a', 'ticker-tag', ticker);
+    a.href = buildHash(ticker, '', 'graveyard');
+    top.appendChild(a);
+    top.appendChild(chip(f.category));
+    top.appendChild(h('span', null, sectionLabel(f.section)));
+    top.appendChild(h('span', 'badge-removed', 'Removed disclosure'));
+    card.appendChild(top);
+    card.appendChild(h('p', 'label', 'Prior quarter'));
+    card.appendChild(h('p', 'finding-text', f.finding));
+    if (f.numbers_covered && f.numbers_covered.length) {
+      var ul = h('ul', 'numbers');
+      ul.setAttribute('aria-label', 'Numbers covered');
+      f.numbers_covered.forEach(function (n) { ul.appendChild(h('li', null, String(n))); });
+      card.appendChild(ul);
+    }
+    var proof = h('div', 'proof');
+    proof.appendChild(h('blockquote', null, f.quote));
+    var dl = h('dl');
+    dl.appendChild(h('dt', null, 'Accession')); dl.appendChild(h('dd', null, f.accession));
+    dl.appendChild(h('dt', null, 'Char offset')); dl.appendChild(h('dd', null, String(f.char_offset)));
+    proof.appendChild(dl);
+    card.appendChild(proof);
+    var after;
+    if (f.closest_current) {
+      after = h('div', 'afterlife');
+      after.appendChild(h('p', 'label', 'Afterlife: closest current-quarter text'));
+      after.appendChild(h('p', 'finding-text', f.closest_current.finding));
+      after.appendChild(h('p', 'afterlife-note', 'Nearest match in the current quarter, not necessarily the same disclosure.'));
+    } else {
+      after = h('div', 'afterlife ghost');
+      after.appendChild(h('p', 'label', 'True ghost'));
+      after.appendChild(h('p', null, 'Disappeared with no counterpart in the current quarter.'));
+    }
+    card.appendChild(after);
+    return card;
+  }
+
+  function renderGraveyard(q, cat) {
+    els.graveyard.textContent = '';
+    var n = 0;
+    state.removed.list.forEach(function (e) {
+      if (matches(e.f, e.ticker, q, cat)) { n++; els.graveyard.appendChild(graveCard(e.ticker, e.f)); }
+    });
+    return n;
+  }
+
+  function setCategoryOptions(counts) {
+    if (state.catCounts === counts) return;
+    state.catCounts = counts;
+    els.category.textContent = '';
+    var all = h('option', null, 'All categories');
+    all.value = '';
+    els.category.appendChild(all);
+    Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a] || a.localeCompare(b); })
+      .forEach(function (c) {
+        var o = h('option', null, c + ' (' + counts[c] + ')');
+        o.value = c;
+        els.category.appendChild(o);
+      });
+  }
+
+  function setNav(view) {
+    var g = view === 'graveyard';
+    els.navTickers.classList.toggle('active', !g);
+    els.navGraveyard.classList.toggle('active', g);
+    if (g) { els.navGraveyard.setAttribute('aria-current', 'page'); els.navTickers.removeAttribute('aria-current'); }
+    else { els.navTickers.setAttribute('aria-current', 'page'); els.navGraveyard.removeAttribute('aria-current'); }
+  }
+
+  function showError(url, err) {
+    els.error.textContent = '';
+    els.error.appendChild(h('p', 'empty-title', 'The spirits swallowed the data.'));
+    els.error.appendChild(h('p', null, 'Could not load ' + url + ' (' + (err && err.message ? err.message : err) + ').'));
+  }
+
   function show(which) {
-    ['grid', 'results', 'detail', 'empty'].forEach(function (k) { els[k].hidden = k !== which; });
+    ['grid', 'results', 'detail', 'graveyard', 'error', 'empty'].forEach(function (k) { els[k].hidden = k !== which; });
   }
 
   function route() {
@@ -191,7 +298,37 @@
     var r = parseHash();
     var t = r.ticker && state.byTicker[r.ticker];
     if (t) { r.q = ''; r.cat = ''; }
+    setNav(r.view);
     if (els.search.value.trim() !== r.q) els.search.value = r.q;
+    if (r.view === 'graveyard') {
+      if (!state.removed) {
+        els.count.textContent = 'Digging up the Graveyard\u2026';
+        show('none');
+        loadRemoved().then(function () {
+          if (parseHash().view === 'graveyard') route();
+        }, function (err) {
+          if (parseHash().view !== 'graveyard') return;
+          els.count.textContent = '';
+          showError(REMOVED_URL, err);
+          show('error');
+        });
+        return;
+      }
+      setCategoryOptions(state.removed.counts);
+      if (r.cat && !state.removed.counts[r.cat]) r.cat = '';
+      els.category.value = r.cat;
+      var gn = renderGraveyard(r.q, r.cat);
+      if (r.q || r.cat) {
+        els.count.textContent = plural(gn, 'removed disclosure', 'removed disclosures') + ' of ' + state.removed.list.length;
+      } else {
+        els.count.textContent = plural(state.removed.list.length, 'removed disclosure', 'removed disclosures') +
+          ' across ' + plural(state.removed.tickers, 'ticker', 'tickers') + ' \u00b7 ' +
+          plural(state.removed.ghosts, 'true ghost', 'true ghosts') + ' with no counterpart';
+      }
+      show(gn ? 'graveyard' : 'empty');
+      return;
+    }
+    setCategoryOptions(state.data.meta.categories);
     if (r.cat && Object.keys(state.data.meta.categories).indexOf(r.cat) === -1) r.cat = '';
     els.category.value = r.cat;
     if (t) {
@@ -211,8 +348,8 @@
   }
 
   function onFilterChange(ev) {
-    var h2 = buildHash(els.search.value.trim(), els.category.value);
     var current = parseHash();
+    var h2 = buildHash(els.search.value.trim(), els.category.value, current.view);
     var onList = !(current.ticker && state.byTicker[current.ticker]);
     if (location.hash === h2 || (h2 === '#/' && (location.hash === '' || location.hash === '#'))) {
       route();
@@ -232,18 +369,15 @@
       return data.meta.categories[b] - data.meta.categories[a] || a.localeCompare(b);
     });
     assignColors(cats);
-    cats.forEach(function (c) {
-      var o = h('option', null, c + ' (' + data.meta.categories[c] + ')');
-      o.value = c;
-      els.category.appendChild(o);
-    });
+    setCategoryOptions(data.meta.categories);
     renderMeta(data.meta);
     renderGrid();
     els.search.addEventListener('input', onFilterChange);
     els.category.addEventListener('change', onFilterChange);
     els.clear.addEventListener('click', function () {
       els.search.value = ''; els.category.value = '';
-      if (location.hash !== '#/' && location.hash !== '') location.hash = '#/'; else route();
+      var home = parseHash().view === 'graveyard' ? '#/graveyard' : '#/';
+      if (location.hash !== home && !(home === '#/' && location.hash === '')) location.hash = home; else route();
     });
     window.addEventListener('hashchange', route);
     route();
@@ -252,9 +386,7 @@
   function fail(err) {
     els.meta.textContent = 'Dataset unavailable.';
     els.error.hidden = false;
-    els.error.textContent = '';
-    els.error.appendChild(h('p', 'empty-title', 'The spirits swallowed the data.'));
-    els.error.appendChild(h('p', null, 'Could not load ' + DATA_URL + ' (' + (err && err.message ? err.message : err) + ').'));
+    showError(DATA_URL, err);
   }
 
   fetch(DATA_URL)

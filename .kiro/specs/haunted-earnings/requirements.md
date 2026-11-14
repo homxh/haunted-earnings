@@ -122,3 +122,33 @@ the Technological Implementation criterion can be scored.
    `data/findings.json` against its schema (required fields present, counts
    consistent with meta).
 4. THE `.kiro` DIRECTORY SHALL NOT be listed in `.gitignore`.
+
+### Requirement 7 — Graveyard of removed disclosures
+
+**User Story:** As an analyst, I want to see what a company stopped
+disclosing, with proof and any later counterpart, so I can judge whether a
+disclosure was reworded or silently dropped.
+
+#### Acceptance Criteria
+
+1. THE SYSTEM SHALL provide a top-level Graveyard view, reachable from a
+   navigation link next to the ticker grid at `#/graveyard`, that lists every
+   entry of `data/removed.json` (717 removed disclosures), loaded at runtime.
+2. THE SYSTEM SHALL show for each entry: ticker, category, section, the
+   prior-quarter finding text labelled as a removed disclosure, the verbatim
+   `quote`, the `accession`, and the `char_offset`.
+3. WHEN an entry has a `closest_current`, THE SYSTEM SHALL show its text as
+   the afterlife, labelled as the closest current-quarter text and not as the
+   same disclosure.
+4. WHEN an entry has `closest_current` null, THE SYSTEM SHALL label it a
+   true ghost (disappeared with no counterpart) and SHALL NOT show any
+   current-quarter text for it.
+5. THE SYSTEM SHALL apply the same category filter and text search (finding
+   text, category, ticker symbol; case-insensitive) to the Graveyard, with a
+   visible result count, an empty state for zero results, a clear button, and
+   shareable hash state (`#/graveyard?q=...&cat=...`).
+6. Numbers shown as chips SHALL come only from `numbers_covered`.
+7. IF `data/removed.json` fails to load, THEN THE SYSTEM SHALL show an error
+   state naming the file, and the ticker views SHALL keep working.
+8. THE VALIDATOR SHALL check `removed.json` required fields, `removed_count`
+   per ticker, `removed_findings` and `no_counterpart` in meta.

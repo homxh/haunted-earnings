@@ -22,6 +22,8 @@ data/findings.json  — the display dataset (see data/DATA-README.md)
 - **State**: URL hash carries the selected view (`#/` index, `#/ACMR`
   ticker detail, `#/?q=...&cat=...` for search/filter), so a view is
   linkable and survives reload.
+- **Graveyard**: `#/graveyard` and `#/graveyard?q=...&cat=...` show the
+  removed-disclosure list from `data/removed.json`.
 - **No dependencies**: zero npm packages. This keeps the repo auditable and
   the GitHub Pages deploy trivial.
 
@@ -84,6 +86,13 @@ Kiro hook on data changes):
 - **Ticker detail**: category groups, each a collapsible section; finding
   cards with text, category chip, section label, numbers; click to expand
   the verbatim quote + accession + char offset.
+- **Graveyard view** (`#/graveyard`): lazily fetches `data/removed.json` on
+  first visit. One card per removed disclosure: prior-quarter text, verbatim
+  quote with accession and char offset, then an afterlife block (closest
+  current-quarter text) or a "True ghost" block when `closest_current` is
+  null. Uses the same filter bar; category option counts switch to the
+  Graveyard counts while in this view. A load failure shows the error state
+  naming `data/removed.json`.
 - **Filter bar**: category dropdown (12 categories), text search input,
   result count, clear button, empty state.
 - **Footer**: data provenance, "not investment advice", link to the
@@ -114,6 +123,8 @@ Kiro hook on data changes):
 
 - **Data validation**: `scripts/validate_data.py` — schema + count checks;
   wired to a Kiro hook so it runs whenever the data file changes.
+- **Graveyard data**: the same validator also checks `data/removed.json`
+  (fields, `removed_count`, meta totals, ghost count).
 - **Manual checks** (no test framework; this is a static UI):
   1. All 20 ticker cards render; counts match meta.
   2. Every category filter returns the meta count for that category.

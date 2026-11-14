@@ -98,6 +98,17 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .ticker-tag { color: var(--orange); font-weight: 700; text-decoration: none; }
 
 .results { display: grid; gap: 10px; }
+.view-nav { display: flex; gap: 8px; margin-bottom: 14px; }
+.view-nav a { padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; color: var(--muted); text-decoration: none; }
+.view-nav a:hover { border-color: var(--violet); color: var(--text); }
+.view-nav a.active { border-color: var(--orange); color: var(--orange); background: var(--panel); }
+.grave .label { margin: 0 0 4px; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.badge-removed { padding: 1px 8px; border-radius: 6px; border: 1px solid #ff4d6d; color: #ff4d6d; font-size: 0.75rem; }
+.afterlife { margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: var(--bg); border: 1px solid var(--violet); }
+.afterlife-note { margin: 0; font-size: 0.8rem; color: var(--muted); }
+.afterlife.ghost { border-style: dashed; border-color: var(--orange); }
+.afterlife.ghost .label { color: var(--orange); }
+.afterlife.ghost p:last-child { margin: 0; }
 .error-state, .empty-state {
   text-align: center; padding: 40px 20px; border: 1px dashed var(--orange); border-radius: 14px; background: var(--panel);
 }
