@@ -10,7 +10,8 @@
     count: $('result-count'), error: $('error'), grid: $('ticker-grid'),
     results: $('results'), detail: $('detail'), empty: $('empty'), graveyard: $('graveyard'),
     navTickers: $('nav-tickers'), navGraveyard: $('nav-graveyard'),
-    filterBar: $('filter-bar'), filterToggle: $('filter-toggle'), toTop: $('back-to-top')
+    filterBar: $('filter-bar'), filterToggle: $('filter-toggle'), toTop: $('back-to-top'),
+    status: $('live-status'), viewHeading: $('view-heading'), skip: document.querySelector('.skip-link')
   };
 
   function h(tag, cls, text) {
@@ -20,6 +21,45 @@
     return e;
   }
   function plural(n, one, many) { return n + ' ' + (n === 1 ? one : many); }
+  function srOnly(tag, text) { return h(tag, 'sr-only', text); }
+  var uid = 0;
+  // Visually hidden heading that also names the card (article) for screen readers.
+  function cardHeading(card, text) {
+    var hd = srOnly('h3', text);
+    hd.id = 'card-h-' + (++uid);
+    card.setAttribute('aria-labelledby', hd.id);
+    card.appendChild(hd);
+  }
+
+  var BASE_TITLE = 'Haunted Earnings | Kiroween 2026';
+  // The visible #result-count updates immediately; screen readers get a debounced, de-duplicated
+  // copy through #live-status so typing does not announce once per keystroke.
+  var announceTimer = null, lastAnnounced = null;
+  function setCount(text) {
+    els.count.textContent = text;
+    clearTimeout(announceTimer);
+    announceTimer = setTimeout(function () {
+      if (text && text !== lastAnnounced) els.status.textContent = text;
+      lastAnnounced = text;
+    }, 600);
+  }
+  // After a route change, move focus to the new view only when the user's focus was lost
+  // (the focused link/button was hidden or removed). Focus in the filter bar or nav is left alone.
+  var pendingFocus = false;
+  function focusLost() {
+    var a = document.activeElement;
+    return !a || a === document.body || !a.isConnected || a.getClientRects().length === 0;
+  }
+  function viewRendered(title, heading, headingText) {
+    document.title = title ? title + ' | Haunted Earnings' : BASE_TITLE;
+    els.viewHeading.hidden = !headingText;
+    if (headingText) els.viewHeading.textContent = headingText;
+    if (!pendingFocus) return;
+    pendingFocus = false;
+    if (!focusLost()) return;
+    (heading || els.viewHeading).focus({ preventScroll: true });
+    window.scrollTo(0, 0);
+  }
 
   var catColor = {};
   // Hand-picked, well-separated hues (orange, violet, teal, pink, blue, lime, red, cyan, magenta, green, sand, slate).
@@ -101,7 +141,11 @@
       }
       card.appendChild(ul);
       var chips = h('div', 'chips');
-      topCategories(t).forEach(function (c) { chips.appendChild(chip(c)); });
+      chips.appendChild(srOnly('span', 'Top categories: '));
+      topCategories(t).forEach(function (c, i, all) {
+        chips.appendChild(chip(c));
+        if (i < all.length - 1) chips.appendChild(srOnly('span', ', '));
+      });
       card.appendChild(chips);
       els.grid.appendChild(card);
     });
@@ -110,6 +154,7 @@
   function findingCard(f, ticker, withTicker, opts) {
     opts = opts || {};
     var card = h('article', 'finding');
+    cardHeading(card, ticker + ', ' + f.category);
     var top = h('div', 'finding-top');
     if (withTicker) {
       var a = h('a', 'ticker-tag', ticker);
@@ -158,7 +203,9 @@
     back.href = '#/';
     els.detail.appendChild(back);
     var head = h('div', 'detail-head');
-    head.appendChild(h('h2', null, t.ticker));
+    var dh = h('h2', null, t.ticker);
+    dh.tabIndex = -1;
+    head.appendChild(dh);
     head.appendChild(h('span', 'ticker-analyst', t.analyst || ''));
     els.detail.appendChild(head);
     var stats = t.display_count + ' findings shown, ' + t.findings_scored + ' scored';
@@ -174,12 +221,14 @@
         var s = h('summary');
         s.appendChild(chip(cat));
         s.appendChild(h('span', 'count', '(' + groups[cat].length + ')'));
+        s.appendChild(srOnly('span', ' ' + (groups[cat].length === 1 ? 'finding' : 'findings')));
         d.appendChild(s);
         var body = h('div', 'group-body');
         groups[cat].forEach(function (f) { body.appendChild(findingCard(f, t.ticker, false, { chip: false })); });
         d.appendChild(body);
         els.detail.appendChild(d);
       });
+    return dh;
   }
 
   function matches(f, ticker, q, cat) {
@@ -229,9 +278,11 @@
 
   function graveCard(ticker, f, note) {
     var card = h('article', 'finding grave');
+    cardHeading(card, ticker + ', ' + f.category + ', removed disclosure' + (f.closest_current ? '' : ', true ghost'));
     var top = h('div', 'finding-top');
     var a = h('a', 'ticker-tag', ticker);
     a.href = buildHash(ticker, '', 'graveyard');
+    a.setAttribute('aria-label', 'Filter graveyard to ' + ticker);
     top.appendChild(a);
     top.appendChild(chip(f.category));
     top.appendChild(sectionTag(f.section));
@@ -332,13 +383,13 @@
     if (els.search.value.trim() !== r.q) els.search.value = r.q;
     if (r.view === 'graveyard') {
       if (!state.removed) {
-        els.count.textContent = 'Digging up the Graveyard\u2026';
+        setCount('Digging up the Graveyard\u2026');
         show('none');
         loadRemoved().then(function () {
           if (parseHash().view === 'graveyard') route();
         }, function (err) {
           if (parseHash().view !== 'graveyard') return;
-          els.count.textContent = '';
+          setCount('');
           showError(REMOVED_URL, err);
           show('error');
         });
@@ -350,13 +401,14 @@
       chrome(r, false);
       var gn = renderGraveyard(r.q, r.cat);
       if (r.q || r.cat) {
-        els.count.textContent = plural(gn, 'removed disclosure', 'removed disclosures') + ' of ' + state.removed.list.length;
+        setCount(plural(gn, 'removed disclosure', 'removed disclosures') + ' of ' + state.removed.list.length);
       } else {
-        els.count.textContent = plural(state.removed.list.length, 'removed disclosure', 'removed disclosures') +
+        setCount(plural(state.removed.list.length, 'removed disclosure', 'removed disclosures') +
           ' across ' + plural(state.removed.tickers, 'ticker', 'tickers') + ' \u00b7 ' +
-          plural(state.removed.ghosts, 'true ghost', 'true ghosts') + ' with no counterpart';
+          plural(state.removed.ghosts, 'true ghost', 'true ghosts') + ' with no counterpart');
       }
       show(gn ? 'graveyard' : 'empty');
+      viewRendered('Graveyard', null, gn ? 'Graveyard of removed disclosures' : 'No matching removed disclosures');
       return;
     }
     setCategoryOptions(state.data.meta.categories);
@@ -364,18 +416,21 @@
     els.category.value = r.cat;
     chrome(r, !!t);
     if (t) {
-      els.count.textContent = '';
-      renderDetail(t);
+      setCount('');
+      var dh = renderDetail(t);
       show('detail');
       window.scrollTo(0, 0);
+      viewRendered(t.ticker, dh, '');
     } else if (r.q || r.cat) {
       var n = renderResults(r.q, r.cat);
-      els.count.textContent = plural(n, 'finding', 'findings') + ' across all tickers';
+      setCount(plural(n, 'finding', 'findings') + ' across all tickers');
       show(n ? 'results' : 'empty');
+      viewRendered('Search results', null, n ? 'Search results' : 'No matching findings');
     } else {
-      els.count.textContent = plural(state.data.meta.display_findings, 'finding', 'findings') +
-        ' across ' + plural(state.data.meta.display_tickers, 'ticker', 'tickers');
+      setCount(plural(state.data.meta.display_findings, 'finding', 'findings') +
+        ' across ' + plural(state.data.meta.display_tickers, 'ticker', 'tickers'));
       show('grid');
+      viewRendered('', null, 'Tickers');
     }
   }
 
@@ -412,14 +467,24 @@
       if (location.hash !== home && !(home === '#/' && location.hash === '')) location.hash = home; else route();
     });
     els.filterToggle.addEventListener('click', function () { setFilterOpen(!els.filterBar.classList.contains('open')); });
-    els.toTop.addEventListener('click', function () { window.scrollTo(0, 0); });
+    els.toTop.addEventListener('click', function () {
+      // Move focus to the page top before the button hides itself, so focus is not dropped.
+      document.querySelector('h1').focus({ preventScroll: true });
+      window.scrollTo(0, 0);
+    });
+    els.skip.addEventListener('click', function (ev) {
+      // A plain #main hash would be read by the router, so handle the skip in script.
+      ev.preventDefault();
+      (els.viewHeading.hidden ? els.detail.querySelector('h2') : els.viewHeading).focus();
+    });
     window.addEventListener('scroll', updateToTop, { passive: true });
-    window.addEventListener('hashchange', route);
+    window.addEventListener('hashchange', function () { pendingFocus = true; route(); });
     route();
   }
 
   function fail(err) {
     els.meta.textContent = 'Dataset unavailable.';
+    els.viewHeading.textContent = 'Dataset unavailable';
     els.error.hidden = false;
     showError(DATA_URL, err);
   }

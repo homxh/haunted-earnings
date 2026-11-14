@@ -9,6 +9,7 @@
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
 </head>
 <body>
+  <a class="skip-link" href="#main">Skip to main content</a>
   <header class="hero">
     <svg class="hero-art" viewBox="0 0 800 160" preserveAspectRatio="xMaxYMax meet" aria-hidden="true" focusable="false">
       <circle cx="690" cy="52" r="34" fill="#f3eefc" opacity="0.9"/>
@@ -41,7 +42,7 @@
     </svg>
     <div class="hero-text">
       <p class="eyebrow">Kiroween 2026 &middot; Costume Contest</p>
-      <h1>Haunted Earnings</h1>
+      <h1 tabindex="-1">Haunted Earnings</h1>
       <p class="tagline">What changed between two 10-Qs, with the proof attached.</p>
       <p id="meta-line" class="meta-line" aria-live="polite">Loading dataset&hellip;</p>
     </div>
@@ -65,9 +66,11 @@
         </label>
         <button id="clear" type="button" class="btn">Clear</button>
       </div>
-      <p id="result-count" class="result-count" aria-live="polite"></p>
+      <p id="result-count" class="result-count"></p>
     </section>
 
+    <p id="live-status" class="sr-only" role="status" aria-live="polite" aria-atomic="true"></p>
+    <h2 id="view-heading" class="sr-only" tabindex="-1">Tickers</h2>
     <div id="error" class="error-state" role="alert" hidden></div>
     <section id="ticker-grid" class="ticker-grid" aria-label="Tickers" hidden></section>
     <section id="results" class="results" aria-label="Search results" hidden></section>
